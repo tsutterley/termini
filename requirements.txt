@@ -1,0 +1,4 @@
+geopandas
+ipyleaflet
+matplotlib
+numpy

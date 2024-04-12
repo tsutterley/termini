@@ -1,0 +1,2 @@
+- `Tyler Sutterley (University of Washington) <http://psc.apl.uw.edu/people/investigators/tyler-sutterley/>`_
+- `Taryn Black (NASA Goddard Space Flight Center/University of Maryland) <https://webhost.essic.umd.edu/faculty-bio/?id=1408>`_
