@@ -24,12 +24,12 @@ Dependencies
 References
 ##########
 
-    T. E. Black and I. Joughin, 
-    "MEaSUREs Weekly to Monthly Greenland Outlet Glacier Terminus Positions from Sentinel-1 Mosaics", 
-    Version 1. 2022, Distributed by NASA National Snow and Ice Data Center Distributed Active Archive Center. 
+    T. E. Black and I. Joughin,
+    "MEaSUREs Weekly to Monthly Greenland Outlet Glacier Terminus Positions from Sentinel-1 Mosaics",
+    Version 1. 2022, Distributed by NASA National Snow and Ice Data Center Distributed Active Archive Center.
     `doi: 10.5067/DGBOSSIULSTD <https://doi.org/10.5067/DGBOSSIULSTD>`_.
 
-    T. E. Black and I. Joughin, 
+    T. E. Black and I. Joughin,
     "Weekly to monthly terminus variability of Greenland's marine-terminating outlet glaciers",
     *The Cryosphere*, 17, 1--13, (2022). `doi: 10.5194/tc-17-1-2023 <https://doi.org/10.5194/tc-17-1-2023>`_.
 
@@ -41,10 +41,15 @@ Download
 | A zip archive of the latest version is available directly at:
 | https://github.com/tsutterley/termini/archive/main.zip
 
+Contributing
+############
+
+This project contains work and contributions from the `scientific community <./CONTRIBUTORS.rst>`_.
+If you would like to contribute to the project, please have a look at the `open issues <https://github.com/tsutterley/termini/issues>`_ and the project `code of conduct <./CODE_OF_CONDUCT.rst>`_.
+
 Disclaimer
 ##########
 
-This project contains work and contributions from the `scientific community <./CONTRIBUTORS.rst>`_.
 This program is not sponsored or maintained by the Universities Space Research Association (USRA) or NASA.
 It is provided here for your convenience but *with no guarantees whatsoever*.
 

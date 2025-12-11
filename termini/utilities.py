@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 u"""
 utilities.py
-Written by Tyler Sutterley (04/2024)
+Written by Tyler Sutterley (12/2025)
 Download and management utilities
 
 UPDATE HISTORY:
+    Updated 12/2025: switch default provider to NSIDC_CPRD
+    Updated 10/2024: update CMR search utility to replace deprecated scrolling
+        https://cmr.earthdata.nasa.gov/search/site/docs/search/api.html
+    Updated 08/2024: generalize hash function to use any available algorithm
     Written 04/2024
 """
 from __future__ import print_function, division, annotations
@@ -70,7 +74,7 @@ def get_data_path(relpath: list | str | pathlib.Path):
 # PURPOSE: get the hash value of a file
 def get_hash(
         local: str | io.IOBase | pathlib.Path,
-        algorithm: str = 'MD5'
+        algorithm: str = 'md5'
     ):
     """
     Get the hash value from a local file or ``BytesIO`` object
@@ -79,18 +83,16 @@ def get_hash(
     ----------
     local: obj, str or pathlib.Path
         BytesIO object or path to file
-    algorithm: str, default 'MD5'
+    algorithm: str, default 'md5'
         hashing algorithm for checksum validation
-
-            - ``'MD5'``: Message Digest
-            - ``'sha1'``: Secure Hash Algorithm
     """
     # check if open file object or if local file exists
     if isinstance(local, io.IOBase):
-        if (algorithm == 'MD5'):
-            return hashlib.md5(local.getvalue()).hexdigest()
-        elif (algorithm == 'sha1'):
-            return hashlib.sha1(local.getvalue()).hexdigest()
+        # generate checksum hash for a given type
+        if algorithm in hashlib.algorithms_available:
+            return hashlib.new(algorithm, local.getvalue()).hexdigest()
+        else:
+            raise ValueError(f'Invalid hashing algorithm: {algorithm}')
     elif isinstance(local, (str, pathlib.Path)):
         # generate checksum hash for local file
         local = pathlib.Path(local).expanduser()
@@ -100,10 +102,10 @@ def get_hash(
         # open the local_file in binary read mode
         with local.open(mode='rb') as local_buffer:
             # generate checksum hash for a given type
-            if (algorithm == 'MD5'):
-                return hashlib.md5(local_buffer.read()).hexdigest()
-            elif (algorithm == 'sha1'):
-                return hashlib.sha1(local_buffer.read()).hexdigest()
+            if algorithm in hashlib.algorithms_available:
+                return hashlib.new(algorithm, local_buffer.read()).hexdigest()
+            else:
+                raise ValueError(f'Invalid hashing algorithm: {algorithm}')
     else:
         return ''
 
@@ -439,10 +441,10 @@ _default_ssl_context = _create_ssl_context_no_verify()
 def attempt_login(
         urs: str = 'urs.earthdata.nasa.gov',
         context=_default_ssl_context,
-        password_manager: bool = True,
+        password_manager: bool = False,
         get_ca_certs: bool = False,
         redirect: bool = False,
-        authorization_header: bool = False,
+        authorization_header: bool = True,
         **kwargs
     ):
     """
@@ -929,7 +931,7 @@ def cmr_filter_json(
             # skip links without descriptors
             if ('rel' not in link.keys()):
                 continue
-            if ('type' not in link.keys()):
+            if ('inherited' in link.keys()):
                 continue
             # append if selected endpoint and request type
             if (link['rel'] == rel[endpoint]):
@@ -939,10 +941,10 @@ def cmr_filter_json(
 
 # PURPOSE: cmr queries
 def cmr(
-        collection_concept_id: str = 'C2565878363-NSIDC_ECS',
+        collection_concept_id: str = 'C3298525513-NSIDC_CPRD',
         producer_granule_id: str = 'glacier_termini_v01.0',
         release: str | int = 1,
-        provider: str = 'NSIDC_ECS',
+        provider: str = 'NSIDC_CPRD',
         endpoint: str = 'data',
         opener = None,
         context: ssl.SSLContext = _default_ssl_context,
@@ -1003,7 +1005,6 @@ def cmr(
     CMR_KEYS.append(f'?provider={provider}')
     CMR_KEYS.append('&sort_key[]=start_date')
     CMR_KEYS.append('&sort_key[]=producer_granule_id')
-    CMR_KEYS.append('&scroll=true')
     CMR_KEYS.append(f'&page_size={cmr_page_size}')
     # append product string
     CMR_KEYS.append(f'&collection-concept-id={collection_concept_id}')
@@ -1015,20 +1016,21 @@ def cmr(
     logging.info(f'CMR request={cmr_query_url}')
     # output list of granule names and urls
     granule_urls = []
-    cmr_scroll_id = None
+    cmr_search_after = None
     while True:
         req = urllib2.Request(cmr_query_url)
-        if cmr_scroll_id:
-            req.add_header('cmr-scroll-id', cmr_scroll_id)
+        # add CMR search after header
+        if cmr_search_after:
+            req.add_header('CMR-Search-After', cmr_search_after)
+            logging.debug(f'CMR-Search-After: {cmr_search_after}')
         response = opener.open(req)
-        # get scroll id for next iteration
-        if not cmr_scroll_id:
-            headers = {k.lower():v for k, v in dict(response.info()).items()}
-            cmr_scroll_id = headers['cmr-scroll-id']
+        # get search after index for next iteration
+        headers = {k.lower():v for k,v in dict(response.info()).items()}
+        cmr_search_after = headers.get('cmr-search-after')
         # read the CMR search as JSON
         search_page = json.loads(response.read().decode('utf-8'))
         urls = cmr_filter_json(search_page, endpoint=endpoint)
-        if not urls:
+        if not urls or cmr_search_after is None:
             break
         # extend lists
         granule_urls.extend(urls)

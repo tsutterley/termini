@@ -1,4 +1,0 @@
-geopandas
-ipyleaflet
-matplotlib
-numpy
