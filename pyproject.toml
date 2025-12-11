@@ -52,6 +52,9 @@ classifiers=[
 [project.urls]
 Repository = "https://github.com/tsutterley/termini"
 
+[project.optional-dependencies]
+dev = ["flake8", "pytest>=4.6", "pytest-cov", "pytest-xdist"]
+
 [tool.setuptools.packages.find]
 exclude = ["test*", "run*"]
 
@@ -66,6 +69,7 @@ termini = { path = ".", editable = true }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
 
 [tool.pixi.tasks.start]
 cmd = "jupyter lab"
@@ -81,6 +85,11 @@ description = "Export workspace to a conda environment file"
 cmd = "python -c 'import termini; termini.utilities.download_resources()'"
 description = "Fetch terminus data"
 
+[tool.pixi.feature.dev.tasks.lint]
+args = [ { "arg" = "flags", "default" = "--select=E9,F63,F7,F82 --show-source" }, { "arg" = "test", "default" = "." } ]
+cmd = "flake8 {{ test }} --count {{ flags }} --statistics --extend-exclude 'build/,run/,*.ipynb_checkpoints/,.pixi/'"
+description = "Run flake8 to check for compilation errors"
+
 [tool.pixi.dependencies]
 geopandas = "*"
 ipyleaflet = "*"
@@ -88,3 +97,9 @@ ipywidgets = "*"
 jupyterlab = "*"
 matplotlib-base = "*"
 numpy = "*"
+
+[tool.pixi.feature.dev.dependencies]
+flake8 = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-xdist = "*"
