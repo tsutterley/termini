@@ -13,10 +13,37 @@ termini
 
 Interactive visualization tool for the `NASA MEaSUREs Terminus products <https://nsidc.org/data/nsidc-0781/versions/1>`_
 
+Running with Pixi
+#################
+
+You can use `Pixi <https://pixi.sh/>`_ for a streamlined workspace environment:
+
+1. Install Pixi following the `installation instructions <https://pixi.sh/latest/#installation>`_
+2. Clone the project repository:
+   
+.. code-block:: bash
+
+   git clone https://github.com/tsutterley/termini.git
+
+3. Move into the ``termini`` directory
+
+.. code-block:: bash
+
+   cd termini
+
+4. Install dependencies and start JupyterLab:
+
+.. code-block:: bash
+
+   pixi run start
+
+This will automatically create the environment, install all dependencies, and launch JupyterLab in the `notebooks <./notebooks/>`_ directory.
+
 Dependencies
 ############
 
 - `geopandas: Python tools for geographic data <https://h5netcdf.org/>`_
+- `ipywidgets: interactive HTML widgets for Jupyter notebooks and IPython <https://ipywidgets.readthedocs.io/en/latest/>`_
 - `ipyleaflet: Interactive maps in the Jupyter notebook <https://ipyleaflet.readthedocs.io/en/latest/>`_
 - `matplotlib: Python 2D plotting library <https://matplotlib.org/>`_
 - `numpy: Scientific Computing Tools For Python <https://numpy.org>`_
